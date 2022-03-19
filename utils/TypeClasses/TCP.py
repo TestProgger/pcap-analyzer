@@ -1,3 +1,4 @@
+from utils.TypeClasses.Frame import Frame
 from .IP import IP
 from pyshark.packet.packet import Packet
 
@@ -8,6 +9,9 @@ class TCP:
         self.src_port : int = int(tcp_packet.tcp.srcport)
         self.dst_port : int = int(tcp_packet.tcp.dstport)
         self.length : int = int(tcp_packet.tcp.len)
+        self.timestamp :float  =  float( tcp_packet.sniff_timestamp )
+        self.frame = Frame(tcp_packet.frame_info)
+        self.time_delta = tcp_packet.tcp.time_delta
         if int(tcp_packet.tcp.len) > 2:
             self.payload : str = parse_hexdata( tcp_packet.tcp.payload )
         else:

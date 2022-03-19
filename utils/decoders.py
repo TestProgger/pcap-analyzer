@@ -17,4 +17,4 @@ def encode_url_utf8(data):
 
 def parse_hexdata(data : str):
     pure_data =  list( filter( lambda x: int(x , 16) >= 32 , data.split(":") ) )
-    return "".join([ chr( int(i , 16) ) for i in pure_data ])
+    return "".join([ chr( int(i , 16) )  for i in pure_data ])
