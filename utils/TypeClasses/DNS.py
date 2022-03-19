@@ -8,8 +8,8 @@ from .IP import IP
 
 class DNS:
     def __init__(self , dns_packet : Packet ) -> None:
-        self.query_name = dns_packet.dns.qry_name
-        self.ip = IP(dns_packet.ip)
-        self.eth = Ethernet(dns_packet.eth)
-        self.udp = UDP(dns_packet)
-        self.timestamp : float( dns_packet.sniff_timestamp )
+        self.query_name : str = dns_packet.dns.qry_name
+        self.timestamp : float = float( dns_packet.sniff_timestamp )
+        self.ip : IP = IP(dns_packet.ip)
+        self.eth : Ethernet = Ethernet(dns_packet.eth)
+        self.udp: UDP = UDP(dns_packet)
