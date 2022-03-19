@@ -1,36 +1,52 @@
+from modules.Types.Scanner.HTTP_SCAN_RESPONSE import HTTP_SCAN_RESPONSE
+from modules.Types.Scanner.TCP_SCAN_RESPONSE import TCP_SCAN_RESPONSE
 from utils.TypeClasses.DNS import DNS
 from utils.TypeClasses.TCP import TCP
 from utils.TypeClasses.UDP import UDP
-from typing import Dict , Union
+from typing import Any, Dict , Union
 
-SPECIAL_PORTS = [ 21 , 22 , 23 , 25 ,  33 , 80 , 443 , 3389 , 3306 , 5432 , 5800 , 5900  ]
+from pprint import pprint
 
+SPECIAL_PORTS = [ 21 , 22 , 23 , 25 ,  33 , 3389 , 3306 , 5432 , 5800 , 5900  ]
+SCANNER_HEADERS = ["nikto" , "nmap" , "goldeneye" , "nessus" , "dirb" , "dirbuster" , "requests" , "xss" , "openvas" , "greenbone" , "open vas" , "open-vas"]
 
-def tcp_port_scan_check( tcp_data_list : list[TCP] ):
+def tcp_port_scan_check( tcp_data_list : list[TCP] ) -> list[TCP_SCAN_RESPONSE]:
     pure_data = tcp_data_list[:]
-
+    ip_map = dict()
     while len( pure_data ) > 0:
         item = pure_data[0]
         filtered_data = filter( lambda x : x.ip.src == item.ip.src , pure_data )
-        print(filtered_data)
-        ip_map = dict()
         for fd in filtered_data:
-            if(  fd.ip.src in ip_map ):
-                ip_map[fd.ip.dst].append( fd.dest_port )
+            if fd.dst_port not in SPECIAL_PORTS:
+                continue
+            if fd.ip.src in ip_map :
+                if fd.ip.dst in ip_map[fd.ip.src]:    
+                    ip_map[fd.ip.src][fd.ip.dst].append(fd.dst_port)
+                else:
+                    ip_map[fd.ip.src][fd.ip.dst] = []
             else:
-                ip_map[fd.ip.dst] = []
+                ip_map[fd.ip.src] = {}
             pure_data.remove(fd)
-    print(ip_map)
+    response = []
+    for src in ip_map.keys():
+        for dst in ip_map[src]:
+            response.append(TCP_SCAN_RESPONSE(src , dst , ip_map[src][dst] ))
+    return response
+
+def http_scan_check(http_data_list)-> list[HTTP_SCAN_RESPONSE]:    
+    response = []
+    for hdt in http_data_list:
+        for header in SCANNER_HEADERS:
+            if header in hdt["user_agent"].lower():
+                response.append( HTTP_SCAN_RESPONSE( hdt["source_address"] , hdt["destination_address"] , header ) )
+    return response
 
 
+def scanner_analyzer( data : Dict[str , Any] ) -> tuple[list[TCP_SCAN_RESPONSE] , list[HTTP_SCAN_RESPONSE]]:
+    tcp_scan_response = tcp_port_scan_check(data["TCP"])
+    http_scan_response = http_scan_check(data["HTTP"])
 
-def dns_bruteforce_check(dns_data_list : list[DNS]):
-    a = 2
-
-def scanner_analyzer( data : Dict[str , Union[UDP , DNS , TCP ]] ):    
-    tcp_data_list : list = data["TCP"]
-
-    tcp_port_scan_check(tcp_data_list)
+    return tcp_scan_response ,  http_scan_response
     
     
         

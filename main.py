@@ -1,16 +1,10 @@
-
-
-from fileinput import filename
-from pprint import pprint
 import pyshark
-from modules.scanner_analyzer import tcp_port_scan_check
 from utils.TypeClasses.DNS import DNS
 from utils.TypeClasses.TCP import TCP
 from utils.TypeClasses.UDP import UDP
 from utils.TypeClasses.ICMP import ICMP
-from utils.decoders import parse_hexdata
-
-# DEFINED_LAYERS = ["TCP" , "ARP" , "TLS" , "DATA" , "ICMP" , "DNS"]
+from utils.extractors import extract_http_information
+from modules.scanner_analyzer import scanner_analyzer
 
 
 
@@ -19,11 +13,11 @@ def read_pcap( pcap_file : str ):
         "TCP" : [],
         "UDP" : [],
         "DNS" : [],
-        "ICMP" : []
+        "ICMP" : [],
+        "HTTP" : []
     }
     with pyshark.FileCapture(pcap_file) as packets:
         for packet in packets:
-            print(packet.transport_layer)
             if packet.highest_layer == "TCP":
                 DEFINED_LAYERS_DICT["TCP"].append( TCP(packet) )
             elif packet.highest_layer == "UDP":
@@ -33,11 +27,13 @@ def read_pcap( pcap_file : str ):
             elif packet.highest_layer == "ICMP":
                 DEFINED_LAYERS_DICT["ICMP"].append( ICMP(packet) )
             elif packet.highest_layer == "HTTP":
-                print(packet)
+                DEFINED_LAYERS_DICT["HTTP"] = extract_http_information(packet)
 
+    return DEFINED_LAYERS_DICT
                 
 
 if __name__ == "__main__":
-   read_pcap("test.pcapng")
+   formatted_data = read_pcap("test.pcapng")
+   scanner_analyzer( formatted_data )
     
 
