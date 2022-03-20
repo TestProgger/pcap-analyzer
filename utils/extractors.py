@@ -104,7 +104,8 @@ def extract_http_information(packet):
 
                 response["http_data"] = ' '.join(str(e) for e in {val for key, val in field_names.items()
                                                       if key == 'http.file_data'})
-
+        response["time_delta"] = float(packet.tcp.time_delta)
+        response["timestamp"] = float(packet.sniff_timestamp)
         return  response
 
     except AttributeError as e:

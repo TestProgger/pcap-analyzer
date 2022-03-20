@@ -1,3 +1,4 @@
+import re
 from modules.Types.Scanner.HTTP_SCAN_RESPONSE import HTTP_SCAN_RESPONSE
 from modules.Types.Scanner.TCP_SCAN_RESPONSE import TCP_SCAN_RESPONSE
 from utils.TypeClasses.DNS import DNS
@@ -8,7 +9,12 @@ from typing import Any, Dict , Union
 from pprint import pprint
 
 SPECIAL_PORTS = [ 21 , 22 , 23 , 25 ,  33 , 3389 , 3306 , 5432 , 5800 , 5900  ]
-SCANNER_HEADERS = ["nikto" , "nmap" , "goldeneye" , "nessus" , "dirb" , "dirbuster" , "requests" , "xss" , "openvas" , "greenbone" , "open vas" , "open-vas"]
+SCANNER_HEADERS = [
+                    r".*nikto.*" , r".*nmap.*" , r".*goldeneye.*" , 
+                    r".*nessus.*" , r".*dirb.*" , r".*dirbuster.*" , 
+                    r".*requests.*" , r".*xss.*" , r".*openvas.*" , 
+                    r".*greenbone.*" , r".*open vas.*" , r".*open-vas.*"
+                ]
 
 def tcp_port_scan_check( tcp_data_list : list[TCP] ) -> list[TCP_SCAN_RESPONSE]:
     pure_data = tcp_data_list[:]
@@ -33,11 +39,11 @@ def tcp_port_scan_check( tcp_data_list : list[TCP] ) -> list[TCP_SCAN_RESPONSE]:
             response.append(TCP_SCAN_RESPONSE(src , dst , ip_map[src][dst] ))
     return response
 
-def http_scan_check(http_data_list)-> list[HTTP_SCAN_RESPONSE]:    
+def http_scan_check(http_data_list)-> list[HTTP_SCAN_RESPONSE]:   
     response = []
     for hdt in http_data_list:
         for header in SCANNER_HEADERS:
-            if header in hdt["user_agent"].lower():
+            if re.match( header , hdt["user_agent"] , re.I | re.M ):
                 response.append( HTTP_SCAN_RESPONSE( hdt["source_address"] , hdt["destination_address"] , header ) )
     return response
 
