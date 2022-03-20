@@ -5,3 +5,7 @@
 
 **/*.pyc
 *.pyc
+*.pcapng*
+*.pcap*
+
+test.pcapng
