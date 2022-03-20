@@ -1,4 +1,0 @@
-# pcap-analyzer
-
-## Requiremments 
-    tshark
