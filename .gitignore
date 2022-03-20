@@ -9,3 +9,5 @@
 *.pcap*
 
 test.pcapng
+
+**/node_modules/
