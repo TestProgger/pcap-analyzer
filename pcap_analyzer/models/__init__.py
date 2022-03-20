@@ -30,7 +30,7 @@ class Packet(BaseModel):
     http_method = TextField(null=True)
     user_agent = TextField(null=True)
 
-    file = ForeignKeyField(File , backref="packets")
+    # file = ForeignKeyField(File , backref="packets")
 
 
 db.connect()

@@ -1,6 +1,5 @@
 import zlib
 import codecs
-import re
 
 def decode_gzip(data):
     return zlib.decompress(data, 16 | zlib.MAX_WBITS)
